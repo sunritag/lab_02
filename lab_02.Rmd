@@ -70,7 +70,7 @@ What do you notice about the date-time? If you are unsure, check out
 [Unix Epoch](https://en.wikipedia.org/wiki/Unix_time). A time converter is
 available [here](https://www.epochconverter.com).
 
-It printed out the time as if 7 PM EST 12/31/1939 is time 0. 
+It printed out the time as if 7 PM EST 12/31/1939 is time 0. The next times all occur at 1 hour (or 3600 second) intervals.
 
 ## Subsetting
 
