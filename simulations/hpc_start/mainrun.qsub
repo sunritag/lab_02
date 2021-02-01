@@ -1,0 +1,98 @@
+#!/bin/bash --login
+#PBS -l nodes=1:ppn=1,walltime=4:00:00,mem=5gb,feature=gbe
+#PBS -N testing
+#PBS -j oe
+#PBS -q main
+#PBS -m n
+
+
+module swap R R/3.2.0
+export R_LIBS_USER=~/R/library
+
+shopt -s expand_aliases # for long job
+cd ${PBS_O_WORKDIR}
+module load powertools # for long job
+
+export BLCR_WAIT_SEC=$(( 4 * 60 * 60 - 60 * 15 ))
+export PBS_JOBSCRIPT="$0"
+echo "Waiting ${BLCR_WAIT_SEC} seconds to run ${PBS_JOBSCRIPT}"
+
+
+#####################################################
+# Start to run R script for multiple change points
+#####################################################
+
+if [ ! -f checkfile${PBS_ARRAYID}.blcr ]
+then
+
+#CHANGE the following to filter files that need to be processed 
+filefilter1="*.input5"
+ 
+#Create a flags directory if one is not already created 
+cd ${PBS_O_WORKDIR} 
+mkdir -p flags 
+
+#Check to see if job being run from an array. Space jobs so they do not run on 
+#top of each other. This is probably unessary 
+if [ ! "${PBS_ARRAYID}" = "" ] 
+then
+    sleep ${PBS_ARRAYID} 
+fi
+  
+# Find the most recent file not in the flags directory 
+# This indicates that the file has not been proceesed 
+for file in `echo $filefilter1`  
+do
+    if [ ! -f ./flags/${file}.flag ]
+    then
+        #Create the file so other jobs will not run the same program 
+        touch ./flags/${file}.flag 
+        dofile=$file
+        break
+    fi
+done
+ 
+#Check to see if dofile is empty 
+#This indicates all files have been processed 
+if [ "$dofile" == "" ] 
+then
+    echo "All jobs completed!"
+    exit 0
+fi     
+
+fi
+# get arguments
+var=`cat ${file}`
+# run it
+longjob Rscript HDCovTesting.R ${var}
+RET=$?
+
+ 
+#Put the job statistics on the flag file as a record and to indicate 
+# the program execited successfully. 
+if [ "$RET" = "0" ]
+then
+    qstat -f ${PBS_JOBID} > ./flags/${dofile}.flag
+else
+    qstat -f ${PBS_JOBID}
+    echo "job with dofile=${dofile} completed with error ${RET}"
+    exit $RET
+fi
+ 
+#Check to see if anything is left that needs to be done 
+for file in `echo $filefilter1`  
+do
+    if [ ! -f ./flags/${file}.flag ]
+    then
+        #flag missing...start another job 
+        qsub mainrun.qsub 
+        exit $RET  
+    fi
+done
+ 
+#Nothing is left to be done... Exit 
+#Note, return value (RET) should be zero 
+echo "ALL JOBS COMPLETED!"
+exit $RET
+
+

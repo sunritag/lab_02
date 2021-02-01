@@ -1,0 +1,30 @@
+#!/bin/bash --login
+#PBS -l nodes=1:ppn=1,walltime=12:00:00,mem=4gb,feature=gbe
+#PBS -N S1NT8DG
+#PBS -j oe
+#PBS -q main
+
+module load R
+
+cd ${PBS_O_WORKDIR}
+
+################################################
+# Start to run R script
+################################################
+
+#CHANGE the following to filter files that need to be processed 
+filefilter="*.input1"
+ 
+for file in `echo $filefilter`  
+do
+ # get arguments 
+ var=`cat ${file}`
+ # run it
+ Rscript R-generate-data.R ${var}
+done
+
+#qsub -t 1-300 mainrun_C.qsub
+ 
+
+
+
