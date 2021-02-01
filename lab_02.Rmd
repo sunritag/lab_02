@@ -1,7 +1,7 @@
 ---
 title: "Lab 02"
-author: ""
-date: ""
+author: "Sunrita Gupta"
+date: "2/1/2021"
 output: 
   html_document:
     toc: true
@@ -27,13 +27,29 @@ you run a simulation on a high performance computer. Organize the contents in
 `organize_me/` using the terminal and shell according to the following steps.
 
 1. delete all `.input2` files;
+# run unzip code
+# cd organize_me
+# rm *.input2
 2. remove the `flags/` directory and all of its contents;
+# navigate to the organize me folder
+# rm -rf flags/
 3. place the test data text files in a directory named `test_data/`;
+# mkdir test_data/
+# mv *testdata*.txt test_data/
 4. place the `.sh` files in a directory named `scripts_shell/`;
+# mkdir scripts_shell/
+# mv *.sh scripts_shell/
 5. place the `.R` files in a directory named `scripts_R/`;
+# mkdir scripts_R/
+# mv *.R scripts_R/
 6. place the `.qsub` files in a directory named `hpc_start/`;
+# mkdir hpc_start/
+# mv *.qsub hpc_start/
 7. copy directory `organize_me/` and name the copy `simulations/`;
+# cd ../ (to navigate back to lab_02)
+# cp -r organize_me/ simulations/
 8. delete directory `organize_me/` and all of its contents.
+# rm -rf organize_me/
 
 
 
@@ -44,13 +60,17 @@ need to set the class attribute to `"POSIXct"`
 
 ```{r}
 z <- seq(0, 3600 * 10, by = 3600)
+attr(z, which = "class") <- "POSIXct"
+# z <- as.POSIXct(z)
+
+z
 ```
 
 What do you notice about the date-time? If you are unsure, check out
 [Unix Epoch](https://en.wikipedia.org/wiki/Unix_time). A time converter is
 available [here](https://www.epochconverter.com).
 
-
+It printed out the time as if 7 PM EST 12/31/1939 is time 0. 
 
 ## Subsetting
 
@@ -66,13 +86,20 @@ Complete the following without using any loops.
 
 1. Subset only the letters from `x`.
 
+x[is.na(as.numeric(x))]
+
 2. Subset only the negative numbers from `x`.
+
+x[x < 0]
 
 3. Select the numbers divisible by 3 from `x`.
 
+y <- x[as.numeric(x) %% 3 == 0]
+y[!is.na(y)]
+
 4. Remove all values with an even index from `x`.
 
-
+x[c(TRUE, FALSE)]
 
 ## Git from the command line
 
